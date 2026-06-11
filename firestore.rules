@@ -1,0 +1,64 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+    
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'description', 'priority', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().size() == 6
+        && data.title is string && data.title.size() >= 1 && data.title.size() <= 200
+        && data.description is string && data.description.size() <= 2000
+        && data.priority in ['low', 'medium', 'high']
+        && data.status in ['active', 'completed']
+        && data.createdAt is number
+        && data.updatedAt is number;
+    }
+
+    match /users/{userId} {
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId) && isValidId(userId) && isValidId(taskId);
+        
+        allow delete: if isOwner(userId) && isValidId(userId) && isValidId(taskId);
+
+        allow create: if isOwner(userId)
+          && isValidId(userId) && isValidId(taskId)
+          && isValidTask(incoming())
+          && incoming().createdAt is number
+          && incoming().updatedAt is number;
+
+        allow update: if isOwner(userId)
+          && isValidId(userId) && isValidId(taskId)
+          && isValidTask(incoming())
+          && (incoming().createdAt == existing().createdAt || !('createdAt' in incoming().diff(existing()).affectedKeys()))
+          && incoming().updatedAt is number
+          && (
+            (incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'priority', 'updatedAt'])) ||
+            (incoming().diff(existing()).affectedKeys().hasOnly(['status', 'updatedAt']))
+          );
+      }
+    }
+  }
+}
