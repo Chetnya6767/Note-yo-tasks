@@ -22,8 +22,9 @@ export default function App() {
     try {
       const provider = new GoogleAuthProvider();
       await signInWithPopup(auth, provider);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Login error:', error);
+      alert(`Login failed: ${error.message}\nMake sure chetnya6767.github.io is added to Authorized domains in Firebase Console -> Authentication -> Settings.`);
     }
   };
 
