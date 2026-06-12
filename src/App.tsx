@@ -50,7 +50,7 @@ export default function App() {
   const panelHeaderStyle = "font-semibold text-gray-500 flex items-center justify-between mb-4 px-2 tracking-wide";
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans dot-grid ${isDark ? 'dark bg-[#1E1E1E] text-slate-100' : 'bg-[#F9F7F2] text-[#2D2D2D]'}`}>
+    <div className={`relative min-h-screen transition-colors duration-500 font-sans dot-grid ${isDark ? 'dark bg-[#1E1E1E] text-slate-100' : 'bg-[#F9F7F2] text-[#2D2D2D]'}`}>
       
       <AnimatePresence>
         {!user && !loading && (
@@ -58,7 +58,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-[#F9F7F2]/80 dark:bg-[#1E1E1E]/80 backdrop-blur-[6px]" 
+            className="absolute inset-0 z-40 bg-[#F9F7F2]/80 dark:bg-[#1E1E1E]/80 backdrop-blur-[6px]" 
           />
         )}
       </AnimatePresence>
