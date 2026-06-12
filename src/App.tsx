@@ -7,7 +7,7 @@ import { TaskForm } from './components/TaskForm';
 import { TaskCard } from './components/TaskCard';
 import { AnimatePresence, motion } from 'motion/react';
 import { auth } from './firebase';
-import { GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
 
 export default function App() {
   const { tasks, user, loading, addTask, updateTaskStatus, deleteTask } = useFirebaseTasks();
@@ -21,7 +21,7 @@ export default function App() {
   const handleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
       console.error('Login error:', error);
       alert(`Login failed: ${error.message}\nMake sure chetnya6767.github.io is added to Authorized domains in Firebase Console -> Authentication -> Settings.`);
