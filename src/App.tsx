@@ -7,11 +7,18 @@ import { TaskForm } from './components/TaskForm';
 import { TaskCard } from './components/TaskCard';
 import { AnimatePresence, motion } from 'motion/react';
 import { auth } from './firebase';
-import { GoogleAuthProvider, signInWithRedirect, signOut } from 'firebase/auth';
+import { GoogleAuthProvider, signInWithPopup, getRedirectResult, signOut } from 'firebase/auth';
 
 export default function App() {
   const { tasks, user, loading, addTask, updateTaskStatus, deleteTask } = useFirebaseTasks();
   const [isDark, setIsDark] = useLocalStorage<boolean>('cozy-taskflow-theme', false);
+
+  useEffect(() => {
+    getRedirectResult(auth).catch((error) => {
+      console.error('Redirect result error:', error);
+      alert(`Login failed after redirect: ${error.message}\nThis might be due to third-party cookies being blocked in your browser.`);
+    });
+  }, []);
 
   const activeTasks = useMemo(() => tasks.filter(t => t.status === 'active').sort((a, b) => b.createdAt - a.createdAt), [tasks]);
   const completedTasks = useMemo(() => tasks.filter(t => t.status === 'completed').sort((a, b) => b.createdAt - a.createdAt), [tasks]);
@@ -21,10 +28,14 @@ export default function App() {
   const handleLogin = async () => {
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
+      await signInWithPopup(auth, provider);
     } catch (error: any) {
       console.error('Login error:', error);
-      alert(`Login failed: ${error.message}\nMake sure chetnya6767.github.io is added to Authorized domains in Firebase Console -> Authentication -> Settings.`);
+      if (error.code === 'auth/popup-closed-by-user') {
+        alert('Login was cancelled. Please make sure not to close the popup window while signing in.');
+      } else {
+        alert(`Login failed: ${error.message}\nMake sure chetnya6767.github.io is added to Authorized domains in Firebase Console.`);
+      }
     }
   };
 
@@ -74,14 +85,19 @@ export default function App() {
         </div>
         <div className="flex items-center gap-4 bg-white/80 dark:bg-[#2D2D2D]/80 backdrop-blur-sm p-1.5 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
           {user ? (
-            <button
-                onClick={handleLogout}
-                className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3A3A3A] transition-colors"
-                aria-label="Logout"
-                title="Logout"
-            >
-                <LogOut className="w-5 h-5" />
-            </button>
+            <div className="flex items-center gap-3 pl-3 pr-1">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300 hidden sm:block">
+                Signed in as <span className="font-bold text-[#2D2D2D] dark:text-white">{user.displayName || user.email}</span>
+              </span>
+              <button
+                  onClick={handleLogout}
+                  className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-[#3A3A3A] transition-colors"
+                  aria-label="Logout"
+                  title="Logout"
+              >
+                  <LogOut className="w-5 h-5" />
+              </button>
+            </div>
           ) : (
             <div className="relative">
               <button
