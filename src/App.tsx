@@ -86,7 +86,7 @@ export default function App() {
         <div className="flex items-center gap-4 bg-white/80 dark:bg-[#2D2D2D]/80 backdrop-blur-sm p-1.5 rounded-2xl shadow-sm border border-black/5 dark:border-white/5">
           {user ? (
             <div className="flex items-center gap-3 pl-3 pr-1">
-              <span className="text-sm font-medium text-gray-600 dark:text-gray-300 hidden sm:block">
+              <span className="text-sm font-medium text-gray-600 dark:text-gray-300">
                 Signed in as <span className="font-bold text-[#2D2D2D] dark:text-white">{user.displayName || user.email}</span>
               </span>
               <button

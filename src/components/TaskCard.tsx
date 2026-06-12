@@ -3,9 +3,10 @@ import { Task, Status } from '../types';
 import { Check, RotateCcw, Trash2 } from 'lucide-react';
 
 interface Props {
+  key?: string;
   task: Task;
-  onStatusChange: (id: string, newStatus: Status) => void;
-  onDelete: (id: string) => void;
+  onStatusChange: (id: string, newStatus: Status) => Promise<void> | void;
+  onDelete: (id: string) => Promise<void> | void;
 }
 
 export function TaskCard({ task, onStatusChange, onDelete }: Props) {

@@ -57,7 +57,7 @@ export function useFirebaseTasks() {
     setLoading(true);
     const path = `users/${user.uid}/tasks`;
     const unsubscribeTasks = onSnapshot(collection(db, path), (snapshot) => {
-      const fetchedTasks = snapshot.docs.map(doc => doc.data() as Task);
+      const fetchedTasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }) as Task);
       setTasks(fetchedTasks);
       setLoading(false);
     }, (error) => {
@@ -69,22 +69,24 @@ export function useFirebaseTasks() {
 
   const addTask = async (title: string, description: string, priority: Priority) => {
     if (!user) return;
-    const newTask: Task = {
-      id: crypto.randomUUID(),
+    const docData = {
       title,
       description,
       priority,
-      status: 'active',
+      status: 'active' as const,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
+    
+    const id = crypto.randomUUID();
+    const newTask: Task = { id, ...docData };
     
     // Optimistic insert
     setTasks(prev => [newTask, ...prev]);
 
     const path = `users/${user.uid}/tasks/${newTask.id}`;
     try {
-      await setDoc(doc(db, `users/${user.uid}/tasks`, newTask.id), newTask);
+      await setDoc(doc(db, `users/${user.uid}/tasks`, newTask.id), docData);
     } catch (error) {
        // Rollback on fail
        setTasks(prev => prev.filter(t => t.id !== newTask.id));
