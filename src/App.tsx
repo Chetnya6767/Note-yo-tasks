@@ -66,7 +66,7 @@ export default function App() {
       {/* Header */}
       <header className="relative z-50 max-w-7xl mx-auto px-6 py-8 flex items-center justify-between mb-2">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#1E3A8A] dark:bg-[#2563EB] rounded-2xl flex items-center justify-center text-white font-bold text-xl shadow-inner">
+          <div className="w-10 h-10 bg-[#1E3A8A] dark:bg-[#2563EB] rounded-[18px] flex items-center justify-center text-white font-bold text-2xl shadow-inner font-['Quicksand'] transform -rotate-6 pt-0.5">
             T
           </div>
           <h1 className="text-2xl font-semibold tracking-tight text-[#2D2D2D] dark:text-white">Taskflow</h1>
